@@ -25,7 +25,7 @@ export default class extends Phaser.State {
    *
    */
   create() {
-    this.state.start('TileMap');
+    this.state.start('Game');
   }
 
 }

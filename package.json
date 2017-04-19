@@ -6,7 +6,7 @@
   "main": "main.js",
   "scripts": {
     "dev": "webpack",
-    "start": "node server.js",
+    "start": "node Server.js",
     "deploy": "webpack --config webpack.production.config.js",
     "test": "standard"
   },

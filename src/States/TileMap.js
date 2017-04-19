@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import Client from '../Client'
+import Player from '../Sprites/Player'
 
 const terrainArr = [
   "dirt_01.png",
@@ -194,14 +195,21 @@ export default class extends Phaser.State {
     }
   }
 
+  /**
+   *
+   */
   preload() {
-    this.game.load.tilemap('Terrain', 'assets/tilemaps/maps/Game.json', null, Phaser.Tilemap.TILED_JSON);
-    this.game.load.image('Terrain', 'assets/maps/terrain.png');
-    this.game.load.image('arrow', 'assets/sprites/arrow.png');
+    this.load.tilemap('Terrain', 'assets/tilemaps/maps/Game.json', null, Phaser.Tilemap.TILED_JSON);
+    this.load.image('mushroom', 'assets/images/mushroom2.png');
+    this.load.image('Terrain', 'assets/maps/terrain.png');
+    this.load.image('arrow', 'assets/sprites/arrow.png');
   }
 
+  /**
+   *
+   */
   initClient() {
-    this.game.stage.disableVisibilityChange = true;
+    this.stage.disableVisibilityChange = true;
     this.client = new Client(this);
     this.playerMap = {};
 
@@ -211,10 +219,13 @@ export default class extends Phaser.State {
     this.client.askNewPlayer();
   }
 
+  /**
+   *
+   */
   create() {
-    this.game.physics.startSystem(Phaser.Physics.P2JS);
-    this.game.stage.backgroundColor = '#01555f';
-    this.map = this.game.add.tilemap('Terrain', 32, 32, 100, 20);
+    this.physics.startSystem(Phaser.Physics.P2JS);
+    this.stage.backgroundColor = '#01555f';
+    this.map = this.add.tilemap('Terrain', 32, 32, 100, 20);
 
     //  Tilesets must always be added first
     this.map.addTilesetImage('Terrain', 'Terrain');
@@ -225,23 +236,13 @@ export default class extends Phaser.State {
     this.ground.resizeWorld();
     this.initClient();
 
-    this.cursors = this.game.input.keyboard.createCursorKeys();
   }
 
+  /**
+   *
+   */
   update() {
-    // this.sprite.body.setZeroVelocity();
-    //
-    // if (this.cursors.left.isDown) {
-    //   this.sprite.body.moveLeft(200);
-    // } else if (this.cursors.right.isDown) {
-    //   this.sprite.body.moveRight(200);
-    // }
-    //
-    // if (this.cursors.up.isDown) {
-    //   this.sprite.body.moveUp(200);
-    // } else if (this.cursors.down.isDown) {
-    //   this.sprite.body.moveDown(200);
-    // }
+
   }
 
   /**
@@ -260,11 +261,9 @@ export default class extends Phaser.State {
    * @param {number} y
    */
   addNewPlayer(id, x, y) {
-    this.playerMap[id] = this.game.add.sprite(x, y, 'arrow');
-    this.playerMap[id].anchor.set(0.5);
-    this.game.physics.p2.enable(this.playerMap[id]);
-    this.playerMap[id].body.maxAngular = 500;
-    this.playerMap[id].body.angularDrag = 50;
+    this.playerMap[id] = new Player({id: id, game: this, x: x, y: y, asset: 'mushroom'});
+    // this.playerMap[id] = new Player({id: id, game: this, x: x, y: y, asset: 'arrow'});
+    this.add.existing(this.playerMap[id]);
 
     return this.playerMap[id];
   }
@@ -278,8 +277,9 @@ export default class extends Phaser.State {
   movePlayer(id, x, y) {
     let player = this.playerMap[id],
       distance = Phaser.Math.distance(player.x, player.y, x, y),
-      tween = this.game.add.tween(player.body),
+      tween = this.add.tween(player.body),
       duration = distance * 10;
+    player.rotation = Math.atan2(y - this.y, x - this.x) + this.math.degToRad(90);
     tween.to({x: x, y: y}, duration);
     tween.start();
   }
@@ -292,4 +292,5 @@ export default class extends Phaser.State {
     this.playerMap[id].destroy();
     delete this.playerMap[id];
   }
+
 }

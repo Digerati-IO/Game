@@ -1,7 +1,6 @@
 import Phaser from 'phaser'
-import Mushroom from '../Sprites/Mushroom'
 import Follower from '../Sprites/Follower'
-import Veggie from '../Sprites/Veggie'
+import Hero from '../Sprites/Hero'
 
 export default class extends Phaser.State {
 
@@ -16,11 +15,8 @@ export default class extends Phaser.State {
    *
    */
   preload() {
-    // load your assets
-    this.load.image('mushroom', 'assets/images/mushroom2.png');
-    this.load.spritesheet('veggies', 'assets/sprites/fruitnveg32wh37.png', 32, 32);
-    this.load.image('background', 'assets/images/starfield.jpg');
-    // this.load.tilemap('map', 'assets/maps/treasureHunter.json', null, Phaser.Tilemap.TILED_JSON);
+    // this.load.image('background', 'assets/images/starfield.jpg');
+    this.load.atlasJSONHash('hero', 'assets/lpc/hero_sheet.png', 'assets/lpc/hero_atlas.json');
   }
 
   /**
@@ -28,53 +24,20 @@ export default class extends Phaser.State {
    */
   create() {
     this.game.physics.startSystem(Phaser.Physics.P2JS);
-    this.game.physics.p2.gravity.y = 200;
+    this.game.physics.p2.gravity.y = 0;
     this.numberOfFollowers = 10;
     this.bounds = {width: 5000, height: this.game.height};
 
     this.game.world.setBounds(0, 0, this.bounds.width, this.bounds.height);
-    this.game.add.tileSprite(0, 0, this.bounds.width, this.game.height, 'background');
+    // this.game.add.tileSprite(0, 0, this.bounds.width, this.game.height, 'background');
+    this.player = new Hero({id: 0, game: this.game, x: 100, y: 100, asset: 'hero'});
 
-
-    this.mushroom = new Mushroom({game: this, x: 100, y: 100, asset: 'mushroom'});
-    this.veggie = new Mushroom({game: this, x: 150, y: 150, asset: 'mushroom'});
-    this.veggie.tint = Math.random() * 0xffffff;
-
-    this.game.add.existing(this.mushroom);
-    this.game.add.existing(this.veggie);
-    this.game.physics.p2.enable(this.mushroom);
-    this.game.physics.p2.enable(this.veggie);
+    this.game.camera.follow(this.player, Phaser.Camera.FOLLOW_TOPDOWN);
     this.game.physics.p2.setBoundsToWorld(true, true, true, true, false);
-
-    //  So they don't collide with each other
-    // this.mushroom.body.clearCollision(true, true);
-    // this.veggie.body.clearCollision(true, true);
-
-    this.game.physics.p2.createRevoluteConstraint(this.veggie, [ 50, 100 ], this.mushroom, [ 0, 0 ]);
-
-    this.game.camera.follow(this.mushroom, Phaser.Camera.FOLLOW_TOPDOWN);
-
-    // function hitMush(player, enemy) {
-    //     enemy.sprite.alpha -= 0.1;
-    // }
-
-    // this.mushroom.body.createBodyCallback(this.mushroom, hitMush, this);
-    // this.game.physics.p2.setImpactEvents(true);
-
-    // this.group = this.game.add.physicsGroup(Phaser.Physics.P2JS);
-    // for (let i = 0; i < 100; i++) {
-    //   let c = this.group.create(this.game.rnd.between(100, this.bounds.width), this.game.rnd.between(0, this.game.height), 'veggies', this.game.rnd.between(0, 35));
-    //   this.game.physics.p2.enable(c, Phaser.Physics.P2JS);
-    //   c.body.collideWorldBounds = true;
-    // }
-    // for (let i = 0; i < 20; i++) {
-    //   let c = this.group.create(this.game.rnd.between(100, this.bounds.width), this.game.rnd.between(0, this.game.height), 'veggies', 17);
-    //   this.game.physics.p2.enable(c, Phaser.Physics.P2JS);
-    //   c.body.collideWorldBounds = true;
-    // }
 
     this.cursors = this.game.input.keyboard.createCursorKeys();
 
+    this.player.animations.play('walkLeft');
     // this.followers();
   }
 
@@ -82,19 +45,6 @@ export default class extends Phaser.State {
    *
    */
   update() {
-    if (this.cursors.up.isDown) {
-      this.mushroom.body.y -= 4;
-    } else if (this.cursors.down.isDown) {
-      this.mushroom.body.y += 4;
-    }
-
-    if (this.cursors.left.isDown) {
-      this.mushroom.body.x -= 4;
-      this.veggie.body.rotateLeft(50);
-    } else if (this.cursors.right.isDown) {
-      this.mushroom.body.x += 4;
-      this.veggie.body.rotateRight(50);
-    }
 
     /**
      * First collision action?
@@ -114,10 +64,7 @@ export default class extends Phaser.State {
      * @param veg
      */
     function collisionHandler(player, veg) {
-      if (veg.frame === 17) {
-        veg.kill();
-        player.body.applyImpulse(0, 100);
-      }
+
     }
   }
 
@@ -172,8 +119,8 @@ export default class extends Phaser.State {
    */
   render() {
     if (__DEV__) {
-      // this.game.debug.spriteInfo(this.mushroom, 32, 32);
-      this.game.debug.bodyInfo(this.mushroom, 32, 32);
+      // this.game.debug.spriteInfo(this.player, 32, 32);
+      // this.game.debug.bodyInfo(this.player, 32, 32);
     }
   }
 }

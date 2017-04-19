@@ -13,26 +13,17 @@ export default class Client {
 
     this.socket.on('allplayers', (data) => {
       for (let i = 0; i < data.length; i++) {
-        let player = this.state.addNewPlayer(data[i].id, data[i].x, data[i].y);
-        this.state.game.camera.follow(player);
+        this.state.game.camera.follow(this.state.addNewPlayer(data[i].id, data[i].x, data[i].y));
       }
     });
 
     this.socket.on('move', (data) => {
-      this.state.movePlayer(data.id, data.x, data.y);
+        this.state.movePlayer(data.id, data.x, data.y);
     });
 
     this.socket.on('remove', (id) => {
       this.state.removePlayer(id);
     });
-  }
-
-  /**
-   *
-   */
-  sendTest() {
-    console.log("test sent");
-    this.socket.emit('test');
   }
 
   /**
@@ -49,6 +40,14 @@ export default class Client {
    */
   sendClick(x, y) {
     this.socket.emit('click', {x: x, y: y});
+  }
+
+  /**
+   *
+   * @param {string} direction
+   */
+  sendMove(direction) {
+    this.socket.emit('move', direction);
   }
 
 }
