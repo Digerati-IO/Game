@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import Follower from '../Sprites/Follower'
 import Hero from '../Sprites/Hero'
+import Client from '../Client'
 
 export default class extends Phaser.State {
 
@@ -15,29 +16,48 @@ export default class extends Phaser.State {
    *
    */
   preload() {
-    // this.load.image('background', 'assets/images/starfield.jpg');
-    this.load.atlasJSONHash('hero', 'assets/lpc/hero_sheet.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.tilemap('Terrain', 'assets/lpc/game.json', null, Phaser.Tilemap.TILED_JSON);
+    this.game.load.image('Terrain', 'assets/lpc/terrain_atlas.png');
+    this.game.load.atlasJSONHash('MaleHero', 'assets/lpc/male_hero.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('FemaleHero', 'assets/lpc/female_hero.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('SkeletonHero', 'assets/lpc/skeleton_hero.png', 'assets/lpc/hero_atlas.json');
+  }
+
+  /**
+   *
+   */
+  initClient() {
+    this.game.stage.disableVisibilityChange = true;
+    this.game.client = new Client(this);
+    this.game.playerMap = {};
+
+    this.ground.events.onInputUp.add((layer, pointer) => {
+      this.game.client.sendClick(pointer.worldX, pointer.worldY);
+    }, this);
+
+    this.game.client.askNewPlayer();
   }
 
   /**
    *
    */
   create() {
-    this.game.physics.startSystem(Phaser.Physics.P2JS);
-    this.game.physics.p2.gravity.y = 0;
+    this.game.physics.startSystem(Phaser.Physics.ARCADE);
+   this. game.physics.arcade.gravity.y = 0;
     this.numberOfFollowers = 10;
     this.bounds = {width: 5000, height: this.game.height};
-
     this.game.world.setBounds(0, 0, this.bounds.width, this.bounds.height);
-    // this.game.add.tileSprite(0, 0, this.bounds.width, this.game.height, 'background');
-    this.player = new Hero({id: 0, game: this.game, x: 100, y: 100, asset: 'hero'});
-
-    this.game.camera.follow(this.player, Phaser.Camera.FOLLOW_TOPDOWN);
-    this.game.physics.p2.setBoundsToWorld(true, true, true, true, false);
-
     this.cursors = this.game.input.keyboard.createCursorKeys();
+    this.jumpButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
-    this.player.animations.play('walkLeft');
+    this.map = this.add.tilemap('Terrain', 32, 32, 100, 20);
+    this.map.addTilesetImage('Terrain', 'Terrain');
+    this.background = this.map.createLayer('Background');
+    this.ground = this.map.createLayer('Ground');
+    this.ground.inputEnabled = true;
+    this.ground.resizeWorld();
+
+    this.initClient();
     // this.followers();
   }
 
@@ -45,6 +65,15 @@ export default class extends Phaser.State {
    *
    */
   update() {
+    if (this.cursors.up.isDown) {
+      this.game.client.sendUpdate('Up');
+    } else if (this.cursors.down.isDown) {
+      this.game.client.sendUpdate('Down');
+    } else if (this.cursors.left.isDown) {
+      this.game.client.sendUpdate('Left');
+    } else if (this.cursors.right.isDown) {
+      this.game.client.sendUpdate('Right');
+    }
 
     /**
      * First collision action?
@@ -64,7 +93,7 @@ export default class extends Phaser.State {
      * @param veg
      */
     function collisionHandler(player, veg) {
-
+      return true;
     }
   }
 
@@ -123,4 +152,60 @@ export default class extends Phaser.State {
       // this.game.debug.bodyInfo(this.player, 32, 32);
     }
   }
+
+  checkBeforeFiring(pointer) {
+    this.line.start.set(this.player.x, this.player.y);
+    this.line.end.set(pointer.worldX, pointer.worldY);
+    this.tileHits = this.layer.getRayCastTiles(this.line, 4, false, true);
+    console.log(this.tileHits.length);
+    if (this.tileHits.length > 0) {
+      //  Just so we can visually see the tiles
+      for (let i = 0; i < this.tileHits.length; i++) {
+        this.tileHits[i].debug = true;
+      }
+      this.layer.dirty = true;
+
+    } else {
+      //if there is no obstacle, fire
+      this.weapon.fire();
+    }
+
+  }
+
+  /**
+   *
+   * @param {Object} player
+   */
+  addNewPlayer(player) {
+    if (!this.game.playerMap[player.id]) {
+      this.game.playerMap[player.id] = new Hero({game: this.game, player: player});
+    }
+    this.game.add.existing(this.game.playerMap[player.id]);
+
+    this.game.playerMap[player.id].body.collideWorldBounds = true;
+    // this.game.playerMap[player.id].body.setSize(32, 32, 5, 16);
+
+    return this.game.playerMap[player.id];
+  }
+
+  /**
+   *
+   * @param {Object} player
+   */
+  updatePlayer(player) {
+    let playerObj = this.game.playerMap[player.id],
+      distance = Phaser.Math.distance(playerObj.x, playerObj.y, player.x, player.y);
+    playerObj.animations.play('Walk' + player.direction);
+    this.game.add.tween(playerObj.body).to({x: player.x, y: player.y}, distance * 10).start();
+  }
+
+  /**
+   *
+   * @param {Object} player
+   */
+  removePlayer(player) {
+    this.game.playerMap[player.id].destroy();
+    delete this.game.playerMap[player.id];
+  }
+
 }

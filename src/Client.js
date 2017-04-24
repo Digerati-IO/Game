@@ -8,22 +8,42 @@ export default class Client {
     this.state = state;
 
     this.socket.on('newplayer', (data) => {
-      this.state.addNewPlayer(data.id, data.x, data.y);
+      this.state.addNewPlayer(data);
     });
 
     this.socket.on('allplayers', (data) => {
       for (let i = 0; i < data.length; i++) {
-        this.state.game.camera.follow(this.state.addNewPlayer(data[i].id, data[i].x, data[i].y));
+        this.state.addNewPlayer(data[i]);
       }
     });
 
-    this.socket.on('move', (data) => {
-        this.state.movePlayer(data.id, data.x, data.y);
+    this.socket.on('update', (data) => {
+      this.state.updatePlayer(data);
     });
 
-    this.socket.on('remove', (id) => {
-      this.state.removePlayer(id);
+    this.socket.on('remove', (data) => {
+      this.state.removePlayer(data);
     });
+  }
+
+  update() {
+    if (this.game.player.speed > 0) {
+      this.isActive = true;
+      this.socket.emit('newPlayerPosition', {
+        x: this.game.player.sprite.x,
+        y: this.game.player.sprite.y,
+        angle: this.game.player.sprite.angle,
+        speed: this.game.player.speed
+      });
+    } else if (this.isActive === true) {
+      this.isActive = false;
+      this.socket.emit('newPlayerPosition', {
+        x: this.game.player.sprite.x,
+        y: this.game.player.sprite.y,
+        angle: this.game.player.sprite.angle,
+        speed: this.game.player.speed
+      });
+    }
   }
 
   /**
@@ -46,8 +66,8 @@ export default class Client {
    *
    * @param {string} direction
    */
-  sendMove(direction) {
-    this.socket.emit('move', direction);
+  sendUpdate(direction) {
+    this.socket.emit('update', direction);
   }
 
 }

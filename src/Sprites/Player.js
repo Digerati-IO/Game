@@ -75,6 +75,15 @@ export default class extends Phaser.Sprite {
    *
    */
   update() {
+    if (this.cursors.up.isDown) {
+      this.animations.play('WalkUp');
+    } else if (this.cursors.down.isDown) {
+      this.animations.play('WalkDown');
+    } else if (this.cursors.left.isDown) {
+      this.animations.play('WalkLeft');
+    } else if (this.cursors.right.isDown) {
+      this.animations.play('WalkRight');
+    }
 
   }
 

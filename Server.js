@@ -1,7 +1,8 @@
 var express = require('express'),
   app = express(),
   server = require('http').Server(app),
-  io = require('socket.io').listen(server);
+  io = require('socket.io').listen(server),
+  heroes = ['Male','Female', 'Skeleton'];
 
 app.use('/css', express.static(__dirname + '/css'));
 app.use('/dist', express.static(__dirname + '/dist'));
@@ -23,23 +24,46 @@ io.on('connection', function (socket) {
 
   socket.on('newplayer', function () {
     socket.player = {
+      asset: heroes[Math.floor(Math.random() * (3 - 0) + 0)] + 'Hero',
+      direction: 'Right',
+      moving: false,
       id: server.lastPlayerID++,
-      x: randomInt(100, 400),
-      y: randomInt(100, 400)
+      x: randomInt(200, 500),
+      y: randomInt(200, 500)
     };
-    socket.emit('allplayers', getAllPlayers());
     socket.broadcast.emit('newplayer', socket.player);
+    socket.emit('allplayers', getAllPlayers());
   });
 
   socket.on('click', function (data) {
-    console.log('click to ' + data.x + ', ' + data.y);
     socket.player.x = data.x;
     socket.player.y = data.y;
-    io.emit('move', socket.player);
+    socket.player.moving = true;
+    io.emit('update', socket.player);
+  });
+
+  socket.on('update', function (direction) {
+    socket.player.direction = direction;
+    socket.player.moving = true;
+    switch(socket.player.direction) {
+      case 'Left':
+        socket.player.x -=5;
+        break;
+      case 'Right':
+        socket.player.x += 5;
+        break;
+      case 'Up':
+        socket.player.y -= 5;
+        break;
+      case 'Down':
+        socket.player.y += 5;
+        break;
+    }
+    io.emit('update', socket.player);
   });
 
   socket.on('disconnect', function () {
-    io.emit('remove', socket.player.id);
+    io.emit('remove', socket.player);
   });
 });
 
