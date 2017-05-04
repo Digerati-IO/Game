@@ -1,49 +1,48 @@
 export default class Client {
 
   /**
-   * @param {Phaser.State} state
+   * @param {Game} game
    */
-  constructor(state) {
-    this.socket = io.connect(); // By default to localhost?
-    this.state = state;
+  constructor(game) {
+    this.socket = io.connect();
 
-    this.socket.on('newplayer', (data) => {
-      this.state.addNewPlayer(data);
+    this.socket.on('newplayer', (player) => {
+      game.addNewPlayer(player);
     });
 
-    this.socket.on('allplayers', (data) => {
-      for (let i = 0; i < data.length; i++) {
-        this.state.addNewPlayer(data[i]);
+    this.socket.on('allplayers', (player) => {
+      for (let i = 0; i < player.length; i++) {
+        game.addNewPlayer(player[i]);
       }
     });
 
-    this.socket.on('update', (data) => {
-      this.state.updatePlayer(data);
+    this.socket.on('update', (direction, shift) => {
+      game.updatePlayer(direction, shift);
     });
 
-    this.socket.on('remove', (data) => {
-      this.state.removePlayer(data);
+    this.socket.on('remove', (player) => {
+      game.removePlayer(player);
     });
   }
 
   update() {
-    if (this.game.player.speed > 0) {
-      this.isActive = true;
-      this.socket.emit('newPlayerPosition', {
-        x: this.game.player.sprite.x,
-        y: this.game.player.sprite.y,
-        angle: this.game.player.sprite.angle,
-        speed: this.game.player.speed
-      });
-    } else if (this.isActive === true) {
-      this.isActive = false;
-      this.socket.emit('newPlayerPosition', {
-        x: this.game.player.sprite.x,
-        y: this.game.player.sprite.y,
-        angle: this.game.player.sprite.angle,
-        speed: this.game.player.speed
-      });
-    }
+    // if (this.game.player.speed > 0) {
+    //   this.isActive = true;
+    //   this.socket.emit('newPlayerPosition', {
+    //     x: this.game.player.sprite.x,
+    //     y: this.game.player.sprite.y,
+    //     angle: this.game.player.sprite.angle,
+    //     speed: this.game.player.speed
+    //   });
+    // } else if (this.isActive === true) {
+    //   this.isActive = false;
+    //   this.socket.emit('newPlayerPosition', {
+    //     x: this.game.player.sprite.x,
+    //     y: this.game.player.sprite.y,
+    //     angle: this.game.player.sprite.angle,
+    //     speed: this.game.player.speed
+    //   });
+    // }
   }
 
   /**
@@ -65,9 +64,10 @@ export default class Client {
   /**
    *
    * @param {string} direction
+   * @param {boolean} shift
    */
-  sendUpdate(direction) {
-    this.socket.emit('update', direction);
+  sendUpdate(direction, shift) {
+    this.socket.emit('update', direction, shift);
   }
 
 }

@@ -1,5 +1,4 @@
 import Phaser from 'phaser'
-import Follower from '../Sprites/Follower'
 import Hero from '../Sprites/Hero'
 import Client from '../Client'
 
@@ -18,9 +17,17 @@ export default class extends Phaser.State {
   preload() {
     this.game.load.tilemap('Terrain', 'assets/lpc/game.json', null, Phaser.Tilemap.TILED_JSON);
     this.game.load.image('Terrain', 'assets/lpc/terrain_atlas.png');
-    this.game.load.atlasJSONHash('MaleHero', 'assets/lpc/male_hero.png', 'assets/lpc/hero_atlas.json');
-    this.game.load.atlasJSONHash('FemaleHero', 'assets/lpc/female_hero.png', 'assets/lpc/hero_atlas.json');
-    this.game.load.atlasJSONHash('SkeletonHero', 'assets/lpc/skeleton_hero.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('MaleHero', 'assets/lpc/tanned_male.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('FemaleHero', 'assets/lpc/tanned_female.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('SkeletonHero', 'assets/lpc/skeleton.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('FemaleShoes', 'assets/lpc/feet/slippers_female/brown.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('MaleShoes', 'assets/lpc/feet/shoes/male/brown_shoes_male.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('FemaleHair', 'assets/lpc/hair/female/long/blonde2.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('MaleHair', 'assets/lpc/hair/male/bedhead/blonde2.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('FemalePants', 'assets/lpc/legs/pants/male/teal_pants_male.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('MalePants', 'assets/lpc/legs/pants/female/teal_pants_female.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('FemaleShirt', 'assets/lpc/torso/corset_female/corset_black.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('MaleShirt', 'assets/lpc/torso/shirts/longsleeve/male/white_longsleeve.png', 'assets/lpc/hero_atlas.json');
   }
 
   /**
@@ -43,10 +50,8 @@ export default class extends Phaser.State {
    */
   create() {
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
-   this. game.physics.arcade.gravity.y = 0;
-    this.numberOfFollowers = 10;
-    this.bounds = {width: 5000, height: this.game.height};
-    this.game.world.setBounds(0, 0, this.bounds.width, this.bounds.height);
+    this.game.world.setBounds(0, 0, 5000, this.game.height);
+    this.worldGroup = this.game.add.group();
     this.cursors = this.game.input.keyboard.createCursorKeys();
     this.jumpButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
@@ -56,9 +61,10 @@ export default class extends Phaser.State {
     this.ground = this.map.createLayer('Ground');
     this.ground.inputEnabled = true;
     this.ground.resizeWorld();
+    this.worldGroup.add(this.background);
+    this.worldGroup.add(this.ground);
 
     this.initClient();
-    // this.followers();
   }
 
   /**
@@ -66,80 +72,13 @@ export default class extends Phaser.State {
    */
   update() {
     if (this.cursors.up.isDown) {
-      this.game.client.sendUpdate('Up');
+      this.game.client.sendUpdate('Up', this.cursors.up.shiftKey);
     } else if (this.cursors.down.isDown) {
-      this.game.client.sendUpdate('Down');
+      this.game.client.sendUpdate('Down', this.cursors.down.shiftKey);
     } else if (this.cursors.left.isDown) {
-      this.game.client.sendUpdate('Left');
+      this.game.client.sendUpdate('Left', this.cursors.left.shiftKey);
     } else if (this.cursors.right.isDown) {
-      this.game.client.sendUpdate('Right');
-    }
-
-    /**
-     * First collision action?
-     *
-     * @param player
-     * @param veg
-     * @returns {boolean}
-     */
-    function processHandler(player, veg) {
-      return true;
-    }
-
-    /**
-     * Second collision action?
-     *
-     * @param player
-     * @param veg
-     */
-    function collisionHandler(player, veg) {
-      return true;
-    }
-  }
-
-  /**
-   *
-   */
-  followers() {
-    // Create 5 followers, each one following the one ahead of it
-    // The first one will follow the mouse pointer
-    for (let i = 0; i < this.numberOfFollowers; i++) {
-      let f = this.game.add.existing(
-        new Follower({
-          game: this.game,
-          x: this.game.width / 2 + i * 32,
-          y: this.game.height / 2,
-          asset: 'veggies',
-          frame: this.game.rnd.between(0, 35),
-          target: f || this.mushroom /* the previous follower or pointer */
-        })
-      );
-    }
-
-    // Create a target for the second group and
-    // move it around the perimeter of the stage.
-    let flag = this.game.add.sprite(32, 32, 'veggies', this.game.rnd.between(0, 35));
-    this.game.add.tween(flag)
-      .to({x: this.bounds.width - 50, y: 50}, 20000, Phaser.Easing.Sinusoidal.InOut)
-      .to({x: this.bounds.width - 50, y: this.game.height - 50}, 12000, Phaser.Easing.Sinusoidal.InOut)
-      .to({x: 50, y: this.game.height - 50}, 20000, Phaser.Easing.Sinusoidal.InOut)
-      .to({x: 50, y: 50}, 12000, Phaser.Easing.Sinusoidal.InOut)
-      .start()
-      .loop();
-
-    // Create 5 more followers, each one following the one ahead of it
-    // The first one will follow the target
-    for (let i = 0; i < this.numberOfFollowers; i++) {
-      let f2 = this.game.add.existing(
-        new Follower({
-          game: this.game,
-          x: this.game.width / 2 + i * 32,
-          y: this.game.height / 2,
-          asset: 'veggies',
-          frame: this.game.rnd.between(0, 35),
-          target: f2 || flag /* the previous follower or the flag */
-        })
-      );
+      this.game.client.sendUpdate('Right', this.cursors.right.shiftKey);
     }
   }
 
@@ -153,50 +92,62 @@ export default class extends Phaser.State {
     }
   }
 
-  checkBeforeFiring(pointer) {
-    this.line.start.set(this.player.x, this.player.y);
-    this.line.end.set(pointer.worldX, pointer.worldY);
-    this.tileHits = this.layer.getRayCastTiles(this.line, 4, false, true);
-    console.log(this.tileHits.length);
-    if (this.tileHits.length > 0) {
-      //  Just so we can visually see the tiles
-      for (let i = 0; i < this.tileHits.length; i++) {
-        this.tileHits[i].debug = true;
-      }
-      this.layer.dirty = true;
-
-    } else {
-      //if there is no obstacle, fire
-      this.weapon.fire();
-    }
-
-  }
-
   /**
    *
    * @param {Object} player
    */
   addNewPlayer(player) {
-    if (!this.game.playerMap[player.id]) {
-      this.game.playerMap[player.id] = new Hero({game: this.game, player: player});
-    }
-    this.game.add.existing(this.game.playerMap[player.id]);
+    let playerObj = new Hero({game: this.game, player: player});
+    this.worldGroup.add(playerObj.group);
 
-    this.game.playerMap[player.id].body.collideWorldBounds = true;
-    // this.game.playerMap[player.id].body.setSize(32, 32, 5, 16);
-
-    return this.game.playerMap[player.id];
+    return playerObj;
   }
 
   /**
    *
    * @param {Object} player
+   * @param {boolean} shift
    */
-  updatePlayer(player) {
-    let playerObj = this.game.playerMap[player.id],
-      distance = Phaser.Math.distance(playerObj.x, playerObj.y, player.x, player.y);
-    playerObj.animations.play('Walk' + player.direction);
-    this.game.add.tween(playerObj.body).to({x: player.x, y: player.y}, distance * 10).start();
+  updatePlayer(player, shift) {
+    let playerObj = this.game.playerMap[player.id];
+    switch (player.direction) {
+      case 'Left':
+        if (shift) {
+          playerObj.group.rotation -= 0.05;
+        } else {
+          playerObj.group.position.x -= 4 * Math.cos(playerObj.group.rotation);
+          playerObj.group.position.y -= 4 * Math.sin(playerObj.group.rotation);
+        }
+        break;
+      case 'Right':
+        if (shift) {
+          playerObj.group.rotation += 0.05;
+        } else {
+          playerObj.group.position.x += 4 * Math.cos(playerObj.group.rotation);
+          playerObj.group.position.y += 4 * Math.sin(playerObj.group.rotation);
+        }
+        break;
+      case 'Up':
+        playerObj.group.position.y -= 4 * Math.cos(playerObj.group.rotation);
+        playerObj.group.position.x += 4 * Math.sin(playerObj.group.rotation);
+        break;
+      case 'Down':
+        playerObj.group.position.y += 4 * Math.cos(playerObj.group.rotation);
+        playerObj.group.position.x -= 4 * Math.sin(playerObj.group.rotation);
+        break;
+    }
+    playerObj.group.rotation += this.game.input.activePointer.movementX * 0.01;
+    playerObj.group.callAll('animations.play', 'animations', 'Walk' + player.direction, 9, true);
+
+    this.game.input.activePointer.resetMovement();
+
+    this.worldGroup.rotation = -1 * playerObj.group.rotation;
+    this.worldGroup.rotation = -1 * playerObj.group.rotation;
+    this.worldGroup.pivot.x = playerObj.group.position.x;
+    this.worldGroup.pivot.y = playerObj.group.position.y;
+    this.worldGroup.x = this.worldGroup.pivot.x;
+    this.worldGroup.y = this.worldGroup.pivot.y;
+    this.game.camera.focusOnXY(playerObj.group.position.x, playerObj.group.position.y + playerObj.torso.height - this.camera.view.halfHeight);
   }
 
   /**

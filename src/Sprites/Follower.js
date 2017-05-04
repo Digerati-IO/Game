@@ -79,4 +79,50 @@ export default class extends Phaser.Sprite {
     }
   }
 
+  /**
+   *
+   */
+  followers() {
+    // Create 5 followers, each one following the one ahead of it
+    // The first one will follow the mouse pointer
+    for (let i = 0; i < this.numberOfFollowers; i++) {
+      let f = this.game.add.existing(
+        new Follower({
+          game: this.game,
+          x: this.game.width / 2 + i * 32,
+          y: this.game.height / 2,
+          asset: 'veggies',
+          frame: this.game.rnd.between(0, 35),
+          target: f || this.mushroom /* the previous follower or pointer */
+        })
+      );
+    }
+
+    // Create a target for the second group and
+    // move it around the perimeter of the stage.
+    let flag = this.game.add.sprite(32, 32, 'veggies', this.game.rnd.between(0, 35));
+    this.game.add.tween(flag)
+      .to({x: this.bounds.width - 50, y: 50}, 20000, Phaser.Easing.Sinusoidal.InOut)
+      .to({x: this.bounds.width - 50, y: this.game.height - 50}, 12000, Phaser.Easing.Sinusoidal.InOut)
+      .to({x: 50, y: this.game.height - 50}, 20000, Phaser.Easing.Sinusoidal.InOut)
+      .to({x: 50, y: 50}, 12000, Phaser.Easing.Sinusoidal.InOut)
+      .start()
+      .loop();
+
+    // Create 5 more followers, each one following the one ahead of it
+    // The first one will follow the target
+    for (let i = 0; i < this.numberOfFollowers; i++) {
+      let f2 = this.game.add.existing(
+        new Follower({
+          game: this.game,
+          x: this.game.width / 2 + i * 32,
+          y: this.game.height / 2,
+          asset: 'veggies',
+          frame: this.game.rnd.between(0, 35),
+          target: f2 || flag /* the previous follower or the flag */
+        })
+      );
+    }
+  }
+
 }

@@ -8,9 +8,14 @@ app.use('/css', express.static(__dirname + '/css'));
 app.use('/dist', express.static(__dirname + '/dist'));
 app.use('/src', express.static(__dirname + '/src'));
 app.use('/assets', express.static(__dirname + '/assets'));
+app.use('/test', express.static(__dirname + '/test'));
 
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
+});
+
+app.get('/test', function (req, res) {
+  res.sendFile(__dirname + '/test/index.html');
 });
 
 server.lastPlayerID = 0;
@@ -23,8 +28,10 @@ server.listen(process.env.PORT || 3000, function () {
 io.on('connection', function (socket) {
 
   socket.on('newplayer', function () {
+    let sex = heroes[Math.floor(Math.random() * (3 - 0) + 0)];
     socket.player = {
-      asset: heroes[Math.floor(Math.random() * (3 - 0) + 0)] + 'Hero',
+      sex: sex,
+      asset: sex + 'Hero',
       direction: 'Right',
       moving: false,
       id: server.lastPlayerID++,
@@ -42,24 +49,10 @@ io.on('connection', function (socket) {
     io.emit('update', socket.player);
   });
 
-  socket.on('update', function (direction) {
+  socket.on('update', function (direction, shift) {
     socket.player.direction = direction;
     socket.player.moving = true;
-    switch(socket.player.direction) {
-      case 'Left':
-        socket.player.x -=5;
-        break;
-      case 'Right':
-        socket.player.x += 5;
-        break;
-      case 'Up':
-        socket.player.y -= 5;
-        break;
-      case 'Down':
-        socket.player.y += 5;
-        break;
-    }
-    io.emit('update', socket.player);
+    io.emit('update', socket.player, shift);
   });
 
   socket.on('disconnect', function () {

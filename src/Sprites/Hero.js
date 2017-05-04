@@ -32,8 +32,6 @@ import Phaser from 'phaser'
 
 export default class extends Phaser.Sprite {
 
-
-
   /**
    *
    * @param {Phaser.Game} game
@@ -41,50 +39,50 @@ export default class extends Phaser.Sprite {
    */
   constructor({game, player}) {
     super(game, player.x, player.y, player.asset);
-    this.anchor.setTo(0.5);
-    this.id = player.id;
+    player.torso = this;
+    player.id = player.id;
+    player.sex = (player.sex !== 'Female') ? 'Male' : player.sex;
+    player.group = this.game.add.group();
+    player.hair = new Phaser.Sprite(this.game, player.torso.x, player.torso.y, player.sex + 'Hair', null, player.group);
+    player.shirt = new Phaser.Sprite(this.game, player.torso.x, player.torso.y, player.sex + 'Shirt', null, player.group);
+    player.pants = new Phaser.Sprite(this.game, player.torso.x, player.torso.y, player.sex + 'Pants', null, player.group);
+    player.shoes = new Phaser.Sprite(this.game, player.torso.x, player.torso.y, player.sex + 'Shoes', null, player.group);
 
-    this.text = this.game.add.text(0, 0, this.id, {
-      font: "16px Arial",
-      fill: "#000000",
-      wordWrap: true,
-      wordWrapWidth: this.width,
-      align: "center",
-      backgroundColor: "#ffffff"
-    });
-    this.text.anchor.set(2, 2);
-    this.text.visible = false;
-    this.addChild(this.text);
+    player.group.add(player.torso);
+    player.group.add(player.hair);
+    player.group.add(player.shirt);
+    player.group.add(player.pants);
+    player.group.add(player.shoes);
 
+    player.group.callAll('animations.add', 'animations', 'IdleRight', ['WalkRight1'], 10, true);
+    player.group.callAll('animations.add', 'animations', 'WalkRight', Phaser.Animation.generateFrameNames('WalkRight', 2, 9), 10, true);
+    player.group.callAll('animations.add', 'animations', 'IdleLeft', ['WalkLeft1'], 10, true);
+    player.group.callAll('animations.add', 'animations', 'WalkLeft', Phaser.Animation.generateFrameNames('WalkLeft', 2, 9), 10, true);
+    player.group.callAll('animations.add', 'animations', 'IdleUp', ['WalkUp1'], 10, true);
+    player.group.callAll('animations.add', 'animations', 'WalkUp', Phaser.Animation.generateFrameNames('WalkUp', 2, 9), 10, true);
+    player.group.callAll('animations.add', 'animations', 'IdleDown', ['WalkDown1'], 10, true);
+    player.group.callAll('animations.add', 'animations', 'WalkDown', Phaser.Animation.generateFrameNames('WalkDown', 2, 9), 10, true);
+    player.group.callAll('animations.add', 'animations', 'CastRight', Phaser.Animation.generateFrameNames('CastRight', 2, 7), 10, true);
+    player.group.callAll('animations.add', 'animations', 'CastLeft', Phaser.Animation.generateFrameNames('CastLeft', 2, 7), 10, true);
+    player.group.callAll('animations.add', 'animations', 'CastUp', Phaser.Animation.generateFrameNames('CastUp', 2, 7), 10, true);
+    player.group.callAll('animations.add', 'animations', 'CastDown', Phaser.Animation.generateFrameNames('CastDown', 2, 7), 10, true);
+    player.group.callAll('animations.add', 'animations', 'ThrustRight', Phaser.Animation.generateFrameNames('ThrustRight', 2, 7), 10, true);
+    player.group.callAll('animations.add', 'animations', 'ThrustLeft', Phaser.Animation.generateFrameNames('ThrustLeft', 2, 7), 10, true);
+    player.group.callAll('animations.add', 'animations', 'ThrustUp', Phaser.Animation.generateFrameNames('ThrustUp', 2, 7), 10, true);
+    player.group.callAll('animations.add', 'animations', 'ThrustDown', Phaser.Animation.generateFrameNames('ThrustDown', 2, 7), 10, true);
+    player.group.callAll('animations.add', 'animations', 'SlashRight', Phaser.Animation.generateFrameNames('SlashRight', 2, 9), 10, true);
+    player.group.callAll('animations.add', 'animations', 'SlashLeft', Phaser.Animation.generateFrameNames('SlashLeft', 2, 9), 10, true);
+    player.group.callAll('animations.add', 'animations', 'SlashUp', Phaser.Animation.generateFrameNames('SlashUp', 2, 9), 10, true);
+    player.group.callAll('animations.add', 'animations', 'SlashDown', Phaser.Animation.generateFrameNames('SlashDown', 2, 9), 10, true);
 
-    this.animations.add('CastRight', Phaser.Animation.generateFrameNames('CastRight', 2, 7), 10, true);
-    this.animations.add('CastLeft', Phaser.Animation.generateFrameNames('CastLeft', 2, 7), 10, true);
-    this.animations.add('CastUp', Phaser.Animation.generateFrameNames('CastUp', 2, 7), 10, true);
-    this.animations.add('CastDown', Phaser.Animation.generateFrameNames('CastDown', 2, 7), 10, true);
-
-    this.animations.add('ThrustRight', Phaser.Animation.generateFrameNames('ThrustRight', 2, 7), 10, true);
-    this.animations.add('ThrustLeft', Phaser.Animation.generateFrameNames('ThrustLeft', 2, 7), 10, true);
-    this.animations.add('ThrustUp', Phaser.Animation.generateFrameNames('ThrustUp', 2, 7), 10, true);
-    this.animations.add('ThrustDown', Phaser.Animation.generateFrameNames('ThrustDown', 2, 7), 10, true);
-
-    this.animations.add('IdleRight', ['WalkRight1'], 10, true);
-    this.animations.add('WalkRight', Phaser.Animation.generateFrameNames('WalkRight', 2, 9), 10, true);
-    this.animations.add('IdleLeft', ['WalkLeft1'], 10, true);
-    this.animations.add('WalkLeft', Phaser.Animation.generateFrameNames('WalkLeft', 2, 9), 10, true);
-    this.animations.add('IdleUp', ['WalkUp1'], 10, true);
-    this.animations.add('WalkUp', Phaser.Animation.generateFrameNames('WalkUp', 2, 9), 10, true);
-    this.animations.add('IdleDown', ['WalkDown1'], 10, true);
-    this.animations.add('WalkDown', Phaser.Animation.generateFrameNames('WalkDown', 2, 9), 10, true);
-
-    this.animations.add('SlashRight', Phaser.Animation.generateFrameNames('SlashRight', 2, 9), 10, true);
-    this.animations.add('SlashLeft', Phaser.Animation.generateFrameNames('SlashLeft', 2, 9), 10, true);
-    this.animations.add('SlashUp', Phaser.Animation.generateFrameNames('SlashUp', 2, 9), 10, true);
-    this.animations.add('SlashDown', Phaser.Animation.generateFrameNames('SlashDown', 2, 9), 10, true);
-
-    this.game.camera.follow(this);
-    this.game.physics.enable(this, Phaser.Physics.ARCADE);
+    this.game.playerMap[player.id] = player;
+    // this.game.camera.follow(player.group);
+    this.game.camera.focusOnXY(player.group.position.x, player.group.position.y + player.torso.height - this.game.camera.view.halfHeight);
+    this.game.physics.enable(player.group, Phaser.Physics.ARCADE);
 
     this.setupEvents();
+
+    return player;
   }
 
   /**
