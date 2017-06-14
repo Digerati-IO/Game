@@ -11,27 +11,7 @@ export default class extends Phaser.State {
 
   }
 
-  /**
-   *
-   */
-  // preload() {
-    // this.game.load.tilemap('Terrain', 'assets/lpc/game.json', null, Phaser.Tilemap.TILED_JSON);
-    // this.game.load.image('Terrain', 'assets/lpc/terrain_atlas.png');
-    // this.game.load.atlasJSONHash('MaleHero', 'assets/lpc/tanned_male.png', 'assets/lpc/hero_atlas.json');
-    // this.game.load.atlasJSONHash('FemaleHero', 'assets/lpc/tanned_female.png', 'assets/lpc/hero_atlas.json');
-    // this.game.load.atlasJSONHash('SkeletonHero', 'assets/lpc/skeleton.png', 'assets/lpc/hero_atlas.json');
-    // this.game.load.atlasJSONHash('FemaleShoes', 'assets/lpc/feet/slippers_female/brown.png', 'assets/lpc/hero_atlas.json');
-    // this.game.load.atlasJSONHash('MaleShoes', 'assets/lpc/feet/shoes/male/brown_shoes_male.png', 'assets/lpc/hero_atlas.json');
-    // this.game.load.atlasJSONHash('FemaleHair', 'assets/lpc/hair/female/long/blonde2.png', 'assets/lpc/hero_atlas.json');
-    // this.game.load.atlasJSONHash('MaleHair', 'assets/lpc/hair/male/bedhead/blonde2.png', 'assets/lpc/hero_atlas.json');
-    // this.game.load.atlasJSONHash('FemalePants', 'assets/lpc/legs/pants/male/teal_pants_male.png', 'assets/lpc/hero_atlas.json');
-    // this.game.load.atlasJSONHash('MalePants', 'assets/lpc/legs/pants/female/teal_pants_female.png', 'assets/lpc/hero_atlas.json');
-    // this.game.load.atlasJSONHash('FemaleShirt', 'assets/lpc/torso/corset_female/corset_black.png', 'assets/lpc/hero_atlas.json');
-    // this.game.load.atlasJSONHash('MaleShirt', 'assets/lpc/torso/shirts/longsleeve/male/white_longsleeve.png', 'assets/lpc/hero_atlas.json');
-  // }
-
   preload() {
-
     // No allowed on JSFiddle with Phaser
     this.game.load.image('targetSprite', 'assets/target.png');
     this.game.load.image('draggableSprite', 'assets/draggable.png');

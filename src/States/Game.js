@@ -17,17 +17,19 @@ export default class extends Phaser.State {
   preload() {
     this.game.load.tilemap('Terrain', 'assets/lpc/game.json', null, Phaser.Tilemap.TILED_JSON);
     this.game.load.image('Terrain', 'assets/lpc/terrain_atlas.png');
-    this.game.load.atlasJSONHash('MaleHero', 'assets/lpc/tanned_male.png', 'assets/lpc/hero_atlas.json');
-    this.game.load.atlasJSONHash('FemaleHero', 'assets/lpc/tanned_female.png', 'assets/lpc/hero_atlas.json');
     this.game.load.atlasJSONHash('SkeletonHero', 'assets/lpc/skeleton.png', 'assets/lpc/hero_atlas.json');
-    this.game.load.atlasJSONHash('FemaleShoes', 'assets/lpc/feet/slippers_female/brown.png', 'assets/lpc/hero_atlas.json');
-    this.game.load.atlasJSONHash('MaleShoes', 'assets/lpc/feet/shoes/male/brown_shoes_male.png', 'assets/lpc/hero_atlas.json');
-    this.game.load.atlasJSONHash('FemaleHair', 'assets/lpc/hair/female/long/blonde2.png', 'assets/lpc/hero_atlas.json');
+
+    this.game.load.atlasJSONHash('MaleHero', 'assets/lpc/tanned_male.png', 'assets/lpc/hero_atlas.json');
     this.game.load.atlasJSONHash('MaleHair', 'assets/lpc/hair/male/bedhead/blonde2.png', 'assets/lpc/hero_atlas.json');
-    this.game.load.atlasJSONHash('FemalePants', 'assets/lpc/legs/pants/male/teal_pants_male.png', 'assets/lpc/hero_atlas.json');
-    this.game.load.atlasJSONHash('MalePants', 'assets/lpc/legs/pants/female/teal_pants_female.png', 'assets/lpc/hero_atlas.json');
-    this.game.load.atlasJSONHash('FemaleShirt', 'assets/lpc/torso/corset_female/corset_black.png', 'assets/lpc/hero_atlas.json');
     this.game.load.atlasJSONHash('MaleShirt', 'assets/lpc/torso/shirts/longsleeve/male/white_longsleeve.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('MalePants', 'assets/lpc/legs/pants/male/teal_pants_male.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('MaleShoes', 'assets/lpc/feet/shoes/male/brown_shoes_male.png', 'assets/lpc/hero_atlas.json');
+
+    this.game.load.atlasJSONHash('FemaleHero', 'assets/lpc/tanned_female.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('FemaleHair', 'assets/lpc/hair/female/long/blonde2.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('FemaleShirt', 'assets/lpc/torso/corset_female/corset_black.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('FemalePants', 'assets/lpc/legs/pants/female/teal_pants_female.png', 'assets/lpc/hero_atlas.json');
+    this.game.load.atlasJSONHash('FemaleShoes', 'assets/lpc/feet/slippers_female/brown.png', 'assets/lpc/hero_atlas.json');
   }
 
   /**
@@ -50,12 +52,12 @@ export default class extends Phaser.State {
    */
   create() {
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
-    this.game.world.setBounds(0, 0, 5000, this.game.height);
+    this.game.world.setBounds(-2048, -2048, 4096, 4096);
     this.worldGroup = this.game.add.group();
     this.cursors = this.game.input.keyboard.createCursorKeys();
     this.jumpButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
-    this.map = this.add.tilemap('Terrain', 32, 32, 100, 20);
+    this.map = this.add.tilemap('Terrain', 32, 32, 100, 100);
     this.map.addTilesetImage('Terrain', 'Terrain');
     this.background = this.map.createLayer('Background');
     this.ground = this.map.createLayer('Ground');

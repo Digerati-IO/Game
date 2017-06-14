@@ -7,6 +7,7 @@ var path = require('path'),
   phaser = path.join(phaserModule, 'build/custom/phaser-split.js'),
   pixi = path.join(phaserModule, 'build/custom/pixi.js'),
   p2 = path.join(phaserModule, 'build/custom/p2.js'),
+  isometric = path.join(__dirname, 'src/Plugins/phaserplugin'),
 
   definePlugin = new webpack.DefinePlugin({
     __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_DEV || 'true'))
@@ -36,7 +37,7 @@ module.exports = {
     })/*,
     new BrowserSyncPlugin({
       host: process.env.IP || 'localhost',
-      port: process.env.PORT || 3030,
+      port: process.env.PORT || 3000,
       server: {
         baseDir: ['./', './build']
       }
